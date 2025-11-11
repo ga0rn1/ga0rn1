@@ -1,18 +1,8 @@
+# app.py
+
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-
-# -----------------------------
-# 필수 패키지 설치 안내
-# -----------------------------
-st.markdown("""
-### 📦 Requirements (requirements.txt)
-```
-streamlit
-plotly
-pandas
-```
-""")
 
 # -----------------------------
 # 데이터 로드
@@ -85,13 +75,50 @@ fig.update_layout(
 # -----------------------------
 st.plotly_chart(fig, use_container_width=True)
 
-# -----------------------------
-# 코드 복사 안내
-# -----------------------------
-st.markdown("""
----
-📋 **복사 안내:** 위 코드를 전체 복사하여 Streamlit Cloud에 업로드하면 작동합니다.
-- 파일명: `app.py`
-- CSV 파일: `countriesMBTI_16types.csv`
-- requirements.txt 위 내용 복사
-""")
+# ============================================================
+# 추가 기능: MBTI 유형별로 국가 순위 그래프
+# ============================================================
+st.markdown("---")
+st.subheader("🌐 MBTI 유형별 국가 순위 비교")
+st.markdown("특정 MBTI 유형을 선택하면, 해당 유형 비율이 높은 국가 순으로 막대 그래프가 표시됩니다.")
+
+# MBTI 유형 선택
+selected_type = st.selectbox("MBTI 유형을 선택하세요:", [c for c in df.columns if c != 'Country'])
+
+# 해당 유형별 국가 순위 계산
+rank_df = df[['Country', selected_type]].sort_values(by=selected_type, ascending=False).reset_index(drop=True)
+
+# 색상 설정 (1등은 노랑, 나머지는 회색, 한국은 파랑)
+colors = []
+for i, row in rank_df.iterrows():
+    if row['Country'].lower() in ['south korea', 'korea', 'republic of korea', '대한민국']:
+        colors.append('#007BFF')  # 파랑
+    elif i == 0:
+        colors.append('#FFD700')  # 노랑
+    else:
+        colors.append('#C0C0C0')  # 회색
+
+# 그래프 생성
+fig2 = px.bar(
+    rank_df,
+    x='Country',
+    y=selected_type,
+    title=f"{selected_type} 유형 비율이 높은 국가 순위",
+    text=selected_type
+)
+
+fig2.update_traces(
+    marker_color=colors,
+    texttemplate='%{text:.2%}',
+    textposition='outside',
+    hovertemplate='<b>%{x}</b><br>비율: %{y:.2%}'
+)
+
+fig2.update_layout(
+    xaxis_title="국가",
+    yaxis_title="비율",
+    plot_bgcolor='white',
+    title_x=0.5,
+)
+
+st.plotly_chart(fig2, use_container_width=True)
