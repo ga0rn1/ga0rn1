@@ -3,4 +3,7 @@ folium
 streamlit-folium
 plotly
 pandas
+streamlit
+matplotlib
+
 
