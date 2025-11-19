@@ -6,6 +6,3 @@ pandas
 streamlit
 matplotlib
 
-
-
-
