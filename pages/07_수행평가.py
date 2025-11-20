@@ -5,16 +5,15 @@ import numpy as np
 
 st.set_page_config(page_title="Device Usage Analysis", layout="wide")
 
-# CSV 파일 로드 (상위 폴더)
+# CSV 파일 로드 (앱 최상위 폴더에서 읽기)
 @st.cache_data
 def load_data():
-    return pd.read_csv("../user_behavior_dataset.csv")
+    return pd.read_csv("user_behavior_dataset.csv")
 
 df = load_data()
 
 st.title("📱 Device Model Usage Analysis")
 st.write("기기별 하루 평균 앱 사용시간을 기준으로 정렬한 인터랙티브 라인 그래프입니다.")
-
 
 # 1) 기기별 평균 사용시간 계산
 device_usage = (
@@ -26,24 +25,22 @@ device_usage = (
 st.subheader("기기별 평균 사용시간 순위")
 st.dataframe(device_usage.reset_index(), use_container_width=True)
 
-
 # 2) 그래프 색상 설정
 colors = []
 
 # 1등 빨간색
 colors.append("red")
 
-# 나머지 주황색 → 밝은 주황색 그라데이션
+# 주황 → 밝은 주황 그라데이션
 base_color = np.array([255, 165, 0])   # Orange (RGB)
 steps = len(device_usage) - 1
 
 for i in range(steps):
-    factor = 0.85 + (i / steps) * 0.15  # 점점 밝아지는 효과
+    factor = 0.85 + (i / steps) * 0.15  # 실질적으로 밝기 변화
     new_color = (base_color * factor).astype(int)
     colors.append(f"rgb({new_color[0]}, {new_color[1]}, {new_color[2]})")
 
-
-# 3) Plotly Line Chart 생성
+# 3) Plotly Line Chart
 fig = go.Figure()
 
 fig.add_trace(
